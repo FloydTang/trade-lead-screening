@@ -1,36 +1,100 @@
-# 线索整理 / 初筛 Skill
+# Trade Lead Screening
+
+把零散搜索结果整理成可继续进入客户背调的结构化线索池。
+
+An open-source Codex skill for normalizing and screening scattered lead clues into a conservative, customer-intel-ready lead pool.
 
 当前状态：可交付
 
-这个目录用于把搜索阶段得到的零散客户名单、网址、联系人线索和备注，整理成可继续进入客户背调的标准输入。
+## 这个仓库适合谁
 
-定位：
+- 已经搜到一批公司名、邮箱、网址、联系人，但信息很乱的人
+- 想先整理线索再进入客户背调的人
+- 想把搜索结果标准化成可复用 JSON 的团队
+- 想搭建 `线索整理 -> 客户背调 -> 开发信` 主动开发链路的人
 
-- 把“搜到很多零散结果，但没法继续判断”的问题变成标准化整理动作
-- 先服务主动开发链路中的中间承接层
-- 首版优先解决字段统一、缺失识别和初步分类，不直接做复杂评分系统
+## Why This Exists
 
-当前立项范围：
+外贸主动开发里，很多时间不是花在“找不到客户”，而是花在“搜到一堆结果却没法继续判断”。
+
+这个 Skill 专门解决这个中间层问题：
+
+- 统一字段
+- 标记缺失项
+- 提示人工复核点
+- 给出下一步动作建议
+- 生成兼容客户背调 Skill 的标准输入
+
+## What It Produces
+
+输入可以是一批很稀疏的线索，例如：
+
+```json
+{
+  "default_country_or_market": "Germany",
+  "operator_notes": "Use conservative screening.",
+  "leads": [
+    {
+      "company_name": "Atelier Loom GmbH",
+      "company_website": "atelier-loom.de",
+      "person_name": "Mira Stein",
+      "email": "mira@atelier-loom.de",
+      "source_url": "https://atelier-loom.de/about"
+    },
+    {
+      "company_name": "",
+      "company_website": "",
+      "person_name": "",
+      "email": "hello@gmail.com",
+      "source_url": "https://marketplace.example/nordhaus"
+    }
+  ]
+}
+```
+
+输出默认包含：
+
+- `summary`
+- 标准化后的 `leads`
+- `missing_fields`
+- `manual_review_reasons`
+- `recommended_next_action`
+- `customer_intel_input`
+
+## Recommended Workflow
+
+1. 把搜索阶段得到的候选线索整理成 JSON
+2. 运行本 Skill 做字段规范化和初筛
+3. 从结果中挑出：
+   - `enter_customer_intel`
+   - 或人工确认后的 `enrich_then_customer_intel`
+4. 送入客户背调 Skill
+5. 背调完成后，再进入开发信 Skill
+
+## Chain Position
+
+这个 Skill 当前处于主动开发链路中间层：
+
+- 上游：`客户搜索 / 线索发现`
+- 下游：客户背调 Skill
+- 后续可继续承接：开发信 Skill、跟进优先级 Skill
+
+推荐链路：
+
+`线索整理skill -> 客户背调skill -> 开发信skill`
+
+关联仓库：
+
+- 客户背调 Skill: [trade-customer-intel](https://github.com/FloydTang/trade-customer-intel)
+- 开发信 Skill: [trade-outreach-email](https://github.com/FloydTang/trade-outreach-email)
+
+## Current Scope
 
 - 首版先聚焦“线索整理 + 初筛提示”
 - 先不做复杂 CRM、提醒系统或长期数据库
-- 先保证输出能稳定进入 `客户背调skill/`
+- 先保证输出能稳定进入客户背调 Skill
 
-当前计划最小能力：
-
-- 输入候选客户名单或单条线索 JSON
-- 输出统一字段后的线索池
-- 标注关键缺失项
-- 给出初步分类和补查建议
-- 产出可直接桥接到客户背调 Skill 的标准输入字段
-
-与现有链路的关系：
-
-- 上游：`客户搜索 / 线索发现`
-- 下游：`客户背调skill/`
-- 后续可继续承接：`开发信skill/`、`跟进优先级skill/`
-
-当前目录结构：
+## Repository Structure
 
 ```text
 .
@@ -49,22 +113,22 @@
 └── for-openclaw/
 ```
 
-当前最小能力：
+## Verification Status
 
-- 输入一批零散候选线索 JSON
-- 输出统一字段后的结构化线索池
-- 标注缺失字段、人工复核原因和下一步动作
-- 生成兼容 `客户背调skill/` 的 `customer_intel_input`
-- 提供固定样例输出、回归检查和发布前 gate
-- 提供最小 `for-openclaw/` 变体
+当前已完成的验证：
 
-当前结论：
+- 固定样例输入输出已生成
+- `run_regression_checks.py` 已通过
+- `run_pre_release_gate.py` 已通过
+- OpenClaw 最小样例已通过
 
-- 已达到“可演示”
-- 已达到“可交付”
-- 采用“双轨逻辑”维护：可作为独立仓库发布，也可作为合集仓库中的稳定节点副本分发
+当前边界：
 
-## 快速运行
+- 这是线索整理与初筛工具，不替代客户背调
+- 初筛结果只作辅助，不直接判断客户价值高低
+- 与客户背调、开发信的字段衔接已打通，但整条链路仍建议按业务场景继续做集成验证
+
+## Quick Start
 
 ```bash
 python3 ./scripts/build_lead_screening_report.py \
@@ -87,7 +151,7 @@ python3 ./scripts/run_regression_checks.py
 python3 ./scripts/run_pre_release_gate.py
 ```
 
-## 发布前流程
+## Release Process
 
 发布前固定执行：
 
@@ -95,13 +159,17 @@ python3 ./scripts/run_pre_release_gate.py
 2. 如有规则或模板改动，重新生成受影响的 `examples/*-output.md` 和 `examples/*-output.json`
 3. 确认 `README.md`、`验收记录.md` 和 `for-openclaw/README.md` 没有状态漂移
 
-## OpenClaw 变体
+## OpenClaw Variant
 
 `for-openclaw/` 是这个 Skill 的 OpenClaw-native 包装版本：
 
 - 保留当前本地版的保守整理原则
 - 假设上游搜索结果已经由 OpenClaw 工作流整理成线索包
 - Python 包装脚本只负责字段规范化、初筛提示和下游背调桥接字段生成
+
+## License
+
+Released under the MIT License. See [LICENSE](./LICENSE).
 
 ## 作者
 
