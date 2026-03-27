@@ -151,6 +151,24 @@ python3 ./scripts/run_regression_checks.py
 python3 ./scripts/run_pre_release_gate.py
 ```
 
+## Feishu / OpenClaw Stage Export
+
+如果你要把这个 Skill 的初筛结果直接接入飞书主表或初筛结果表，可在生成主输出后再运行：
+
+```bash
+python3 ./scripts/build_feishu_stage_payload.py \
+  --input-json ./examples/sample-output.json \
+  --combo-run-id demo-run
+```
+
+这个脚本不会重新做线索整理判断。
+
+它只负责把已有的 screening 输出转换成 OpenClaw 可消费的阶段 payload，用于：
+
+- 写入 `Lead Screening Results`
+- 回写 `Lead Workflow Master`
+- 让后续客户背调或单点使用时复用同一条主记录
+
 ## Release Process
 
 发布前固定执行：
