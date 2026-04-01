@@ -6,24 +6,77 @@ An open-source Codex skill for normalizing and screening scattered lead clues in
 
 当前状态：可交付
 
-## 这个仓库适合谁
+角色定位：`线索初筛员`
 
-- 已经搜到一批公司名、邮箱、网址、联系人，但信息很乱的人
-- 想先整理线索再进入客户背调的人
-- 想把搜索结果标准化成可复用 JSON 的团队
-- 想搭建 `线索整理 -> 客户背调 -> 开发信` 主动开发链路的人
+这个仓库的开源内容本身即可独立使用，飞书增强入口不是必需安装步骤，而是增强体验选项。
 
-## Why This Exists
+链路角色：
 
-外贸主动开发里，很多时间不是花在“找不到客户”，而是花在“搜到一堆结果却没法继续判断”。
+- 在总链路里是 `stage_worker`
+- 组合包 / 主代理是 `workflow_owner`
+- 单节点默认 `attach_only`
+- `feishu_container_creation = forbidden`
+- 单节点不独立声明飞书工作容器
+- 所有数据最终统一挂到同一个 `Trade Lead Workflow Hub`
 
-这个 Skill 专门解决这个中间层问题：
+上下游关系：
+
+- 上游：[trade-lead-discovery](https://github.com/FloydTang/trade-lead-discovery) 或人工整理线索
+- 下游：[trade-customer-intel](https://github.com/FloydTang/trade-customer-intel)
+
+## 公开最小可用说明
+
+这个仓库公开层只解决一个问题：
+
+- 把零散候选线索整理成可继续进入客户背调的标准输入
+- 和组合包一样，这个单节点仓库本身就拥有可独立执行的最小功能
+
+## 两种权益
+
+这个 Skill 当前分成两种使用权益：
+
+### 1. 开源权益
+
+- 直接使用当前 GitHub 仓库里的开源内容
+- 即插即用，适合先跑通最小版本
+- 适合自己阅读 README、运行脚本、替换样例和继续二次改造
+
+### 2. 增强权益
+
+- 在开源最小能力基础上，额外使用半斤九两科技提供的飞书增强执行词
+- 更适合龙虾 / OpenClaw 安装和执行
+- 使用体验会更精致、更完整，理解障碍和安装试错更少
+- 更容易和统一的 `Trade Lead Workflow Hub` 挂接
+
+当前最小能力：
 
 - 统一字段
 - 标记缺失项
 - 提示人工复核点
 - 给出下一步动作建议
-- 生成兼容客户背调 Skill 的标准输入
+- 生成兼容 `trade-customer-intel` 的标准输入
+
+## 飞书增强入口
+
+这个 Skill 的开源版本身就可以单独使用，并能完成当前节点的最小可用功能。
+
+如果你希望在龙虾 / OpenClaw 中获得更精致、更完整的使用体验，建议按下面流程复制增强执行词：
+
+- [飞书增强入口：复制增强执行词给龙虾](https://evenbetter.feishu.cn/wiki/ADmiwiultihx6Yk1p2UcjfmVn6d)
+
+如果链接打不开，请先确认使用和半斤九两科技会员群绑定的飞书账号登录。
+
+如果你暂时还没有绑定过，或当前还没有半斤九两科技的账号，请访问：[evenbetter.tech](https://evenbetter.tech)
+
+仓库内对应的源码基线在：
+
+- `references/00-单节点增强执行词.md`
+- `for-openclaw/README.md`
+- `for-openclaw/SKILL.md`
+
+## 推荐模型
+
+- `coze/glm-4-7-251222`
 
 ## What It Produces
 
@@ -40,13 +93,6 @@ An open-source Codex skill for normalizing and screening scattered lead clues in
       "person_name": "Mira Stein",
       "email": "mira@atelier-loom.de",
       "source_url": "https://atelier-loom.de/about"
-    },
-    {
-      "company_name": "",
-      "company_website": "",
-      "person_name": "",
-      "email": "hello@gmail.com",
-      "source_url": "https://marketplace.example/nordhaus"
     }
   ]
 }
@@ -60,73 +106,6 @@ An open-source Codex skill for normalizing and screening scattered lead clues in
 - `manual_review_reasons`
 - `recommended_next_action`
 - `customer_intel_input`
-
-## Recommended Workflow
-
-1. 把搜索阶段得到的候选线索整理成 JSON
-2. 运行本 Skill 做字段规范化和初筛
-3. 从结果中挑出：
-   - `enter_customer_intel`
-   - 或人工确认后的 `enrich_then_customer_intel`
-4. 送入客户背调 Skill
-5. 背调完成后，再进入开发信 Skill
-
-## Chain Position
-
-这个 Skill 当前处于主动开发链路中间层：
-
-- 上游：`客户搜索 / 线索发现`
-- 下游：客户背调 Skill
-- 后续可继续承接：开发信 Skill、跟进优先级 Skill
-
-推荐链路：
-
-`线索整理skill -> 客户背调skill -> 开发信skill`
-
-关联仓库：
-
-- 客户背调 Skill: [trade-customer-intel](https://github.com/FloydTang/trade-customer-intel)
-- 开发信 Skill: [trade-outreach-email](https://github.com/FloydTang/trade-outreach-email)
-
-## Current Scope
-
-- 首版先聚焦“线索整理 + 初筛提示”
-- 先不做复杂 CRM、提醒系统或长期数据库
-- 先保证输出能稳定进入客户背调 Skill
-
-## Repository Structure
-
-```text
-.
-├── README.md
-├── SKILL.md
-├── 立项方案.md
-├── 验收记录.md
-├── scripts/
-│   ├── build_lead_screening_report.py
-│   ├── build_customer_intel_batch_input.py
-│   ├── run_regression_checks.py
-│   └── run_pre_release_gate.py
-├── examples/
-├── references/
-├── schemas/
-└── for-openclaw/
-```
-
-## Verification Status
-
-当前已完成的验证：
-
-- 固定样例输入输出已生成
-- `run_regression_checks.py` 已通过
-- `run_pre_release_gate.py` 已通过
-- OpenClaw 最小样例已通过
-
-当前边界：
-
-- 这是线索整理与初筛工具，不替代客户背调
-- 初筛结果只作辅助，不直接判断客户价值高低
-- 与客户背调、开发信的字段衔接已打通，但整条链路仍建议按业务场景继续做集成验证
 
 ## Quick Start
 
@@ -169,25 +148,58 @@ python3 ./scripts/build_feishu_stage_payload.py \
 - 回写 `Lead Workflow Master`
 - 让后续客户背调或单点使用时复用同一条主记录
 
-## Release Process
+## Chain Position
 
-发布前固定执行：
+推荐链路：
 
-1. `python3 ./scripts/run_pre_release_gate.py`
-2. 如有规则或模板改动，重新生成受影响的 `examples/*-output.md` 和 `examples/*-output.json`
-3. 确认 `README.md`、`验收记录.md` 和 `for-openclaw/README.md` 没有状态漂移
+`trade-lead-discovery -> trade-lead-screening -> trade-customer-intel -> trade-outreach-email`
+
+关联仓库：
+
+- 客户搜索 Skill: [trade-lead-discovery](https://github.com/FloydTang/trade-lead-discovery)
+- 客户背调 Skill: [trade-customer-intel](https://github.com/FloydTang/trade-customer-intel)
+- 开发信 Skill: [trade-outreach-email](https://github.com/FloydTang/trade-outreach-email)
+
+## Agent-First 增强价值
+
+会员增强层当前不是改业务逻辑，而是补这几件事：
+
+- 单节点在龙虾里有明确的 `stage_worker` 角色
+- 单节点默认只 attach，不独立建飞书工作容器
+- 飞书里提供可直接复制给龙虾的增强执行词
+- 与总编排链路保持同一套回挂字段、失败回报和协作口径
+
+## Repository Structure
+
+```text
+.
+├── README.md
+├── SKILL.md
+├── 立项方案.md
+├── 验收记录.md
+├── scripts/
+│   ├── build_lead_screening_report.py
+│   ├── build_customer_intel_batch_input.py
+│   ├── run_regression_checks.py
+│   └── run_pre_release_gate.py
+├── examples/
+├── references/
+│   ├── 00-单节点增强执行词.md
+│   ├── customer-intel-integration.md
+│   ├── input-fields.md
+│   ├── output-template.md
+│   └── screening-rules.md
+├── schemas/
+└── for-openclaw/
+```
 
 ## OpenClaw Variant
 
-`for-openclaw/` 是这个 Skill 的 OpenClaw-native 包装版本：
+`for-openclaw/` 提供和总仓一致口径的单节点 OpenClaw 包装版本：
 
-- 保留当前本地版的保守整理原则
-- 假设上游搜索结果已经由 OpenClaw 工作流整理成线索包
-- Python 包装脚本只负责字段规范化、初筛提示和下游背调桥接字段生成
-
-## License
-
-Released under the MIT License. See [LICENSE](./LICENSE).
+- 角色固定为 `stage_worker`
+- 默认只允许 attach 到 `Trade Lead Workflow Hub`
+- 不允许独立创建 Base、主表或平行工作容器
 
 ## 作者
 
