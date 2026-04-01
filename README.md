@@ -29,6 +29,23 @@ An open-source Codex skill for normalizing and screening scattered lead clues in
 - 把零散候选线索整理成可继续进入客户背调的标准输入
 - 和组合包一样，这个单节点仓库本身就拥有可独立执行的最小功能
 
+## 两种权益
+
+这个 Skill 当前分成两种使用权益：
+
+### 1. 开源权益
+
+- 直接使用当前 GitHub 仓库里的开源内容
+- 即插即用，适合先跑通最小版本
+- 适合自己阅读 README、运行脚本、替换样例和继续二次改造
+
+### 2. 增强权益
+
+- 在开源最小能力基础上，额外使用半斤九两科技提供的飞书增强执行词
+- 更适合龙虾 / OpenClaw 安装和执行
+- 使用体验会更精致、更完整，理解障碍和安装试错更少
+- 更容易和统一的 `Trade Lead Workflow Hub` 挂接
+
 当前最小能力：
 
 - 统一字段
@@ -47,7 +64,7 @@ An open-source Codex skill for normalizing and screening scattered lead clues in
 
 如果你拿到的是半斤九两科技沟通过的执行包用户链接，也可以优先使用那个链接打开。
 
-如果你当前还没有半斤九两科技的账号，需要联系半斤九两科技，请访问：[evenbetter.tech](https://evenbetter.tech)
+如果你当前还没有半斤九两科技的账号，或飞书链接仍然打不开，请访问：[evenbetter.tech](https://evenbetter.tech)
 
 仓库内对应的源码基线在：
 
