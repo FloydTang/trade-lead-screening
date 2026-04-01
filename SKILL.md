@@ -1,21 +1,36 @@
 ---
 name: trade-lead-screening
-description: Normalize and screen scattered foreign-trade leads into a conservative, structured lead pool that can flow into customer-intel research. Use when an operator has company names, websites, emails, or contact clues from search results and needs a standardized output with missing-field warnings, review flags, next-step suggestions, and customer-intel-ready JSON.
+description: Normalize and screen scattered foreign-trade lead clues into a conservative lead pool with missing-field warnings, manual-review reasons, and customer-intel-ready payloads.
 ---
 
 # 线索整理 / 初筛 Skill
 
 ## Overview
 
-用这个 Skill 把搜索阶段拿到的零散线索整理成统一格式，降低后续进入客户背调前的判断成本。
+用这个 Skill 把搜索阶段得到的零散客户名单、网址、联系人线索和备注，整理成可继续进入客户背调的标准输入。
 
-首版重点不是“自动判断客户值不值得做”，而是：
+角色定位：
 
-- 统一字段
-- 标记缺失项
-- 给出初步分类
-- 提示人工复核点
-- 生成兼容 `客户背调skill/` 的标准输入
+- `线索初筛员`
+- 负责字段统一、缺失识别、初步分类和下一步建议
+- 不负责公开网页深度背调
+- 不负责最终邮件文案输出
+
+## Chain Role
+
+- 在总链路中固定作为 `stage_worker`
+- 默认单节点策略：`attach_only`
+- 默认不独立声明飞书工作容器
+- 所有数据最终统一挂到 `Trade Lead Workflow Hub`
+
+## Agent-First Installation Notes
+
+这个仓库默认提供两层说明：
+
+- 公开层：根目录 `README.md`，保证最小可用
+- 增强层：`for-openclaw/README.md` 和 `references/00-单节点增强执行词.md`
+
+如果你要在龙虾里使用这个节点，优先复制增强执行词给龙虾，而不是先看教程型长文。
 
 ## Standard Input
 
@@ -23,20 +38,15 @@ description: Normalize and screen scattered foreign-trade leads into a conservat
 
 ```json
 {
-  "default_country_or_market": "",
-  "operator_notes": "",
+  "default_country_or_market": "Germany",
+  "operator_notes": "Use conservative screening.",
   "leads": [
     {
-      "company_name": "Nordic Home Textile AB",
-      "company_website": "https://www.nordichometextile.example",
-      "person_name": "Nadia",
-      "email": "",
-      "country_or_market": "Sweden",
-      "source_url": "https://www.linkedin.com/company/nordic-home-textile-ab",
-      "linkedin_url": "",
-      "notes": "Found via home textile search results",
-      "product_keywords": "linen table textile",
-      "source_type": "linkedin"
+      "company_name": "Atelier Loom GmbH",
+      "company_website": "atelier-loom.de",
+      "person_name": "Mira Stein",
+      "email": "mira@atelier-loom.de",
+      "source_url": "https://atelier-loom.de/about"
     }
   ]
 }
@@ -44,29 +54,22 @@ description: Normalize and screen scattered foreign-trade leads into a conservat
 
 ## Workflow
 
-1. Normalize each lead field into a stable shape.
-2. Detect obvious missing fields and risky inconsistencies.
-3. Classify the lead into a conservative bucket.
-4. Suggest the next action:
-   - `enter_customer_intel`
-   - `enrich_then_customer_intel`
-   - `hold_for_manual_review`
-5. Build a `customer_intel_input` payload for downstream use.
-6. Output the result in JSON and optionally Markdown.
+1. Normalize raw lead clues into the standard screening shape.
+2. Identify missing fields and conflicting clues.
+3. Produce manual-review reasons and a conservative next action.
+4. Build `customer_intel_input` payloads for leads that can continue downstream.
 
 ## Output Requirements
 
-- 必须包含汇总统计
-- 必须包含每条线索的标准化字段
-- 必须包含缺失项
-- 必须包含人工复核原因
-- 必须包含下一步动作建议
-- 必须包含兼容客户背调 Skill 的桥接字段
-- 不能把推断写成事实
+- 必须输出标准化字段结果
+- 必须输出缺失项
+- 必须输出人工复核原因
+- 必须输出推荐下一步动作
+- 必须输出客户背调桥接输入
+- 不能越权替代 `trade-customer-intel` 做证据驱动背调
+- 不能越权替代 `trade-outreach-email` 生成邮件草稿
 
 ## Main Scripts
-
-默认脚本入口：
 
 - [build_lead_screening_report.py](./scripts/build_lead_screening_report.py)
 - [build_customer_intel_batch_input.py](./scripts/build_customer_intel_batch_input.py)
@@ -87,8 +90,13 @@ python3 ./scripts/run_regression_checks.py
 
 ## Defaults
 
-- 首版优先本地运行
-- 首版不强依赖联网
-- 输出偏保守
-- 初筛结果只作辅助，不替代人工判断
-- 默认优先衔接客户背调 Skill
+- 首版不继续联网搜索
+- 首版优先保守整理和桥接
+- 首版输出优先衔接客户背调 Skill
+- OpenClaw 单节点默认只 attach，不单独建表
+
+## References
+
+- [00-单节点增强执行词.md](./references/00-单节点增强执行词.md)
+- [for-openclaw/README.md](./for-openclaw/README.md)
+- [for-openclaw/SKILL.md](./for-openclaw/SKILL.md)
