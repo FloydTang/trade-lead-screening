@@ -56,15 +56,17 @@ An open-source Codex skill for normalizing and screening scattered lead clues in
 
 ## 飞书增强入口
 
-如果你要把这个节点接进龙虾 / OpenClaw 多代理链路，优先不要先看长教程，直接复制增强执行词给龙虾：
+这个 Skill 的开源版本身就可以单独使用，并能完成当前节点的最小可用功能。
+
+如果你希望在龙虾 / OpenClaw 中获得更精致、更完整的使用体验，建议按下面流程复制增强执行词：
 
 - [飞书增强入口：复制增强执行词给龙虾](https://evenbetter.feishu.cn/wiki/ADmiwiultihx6Yk1p2UcjfmVn6d)
 
-如果链接打开失败，请使用登记在半斤九两群里的飞书账号打开。
+如果链接打不开，请先确认使用和半斤九两科技会员群绑定的飞书账号登录。
 
 如果你拿到的是半斤九两科技沟通过的执行包用户链接，也可以优先使用那个链接打开。
 
-如果你当前还没有半斤九两科技的账号，或飞书链接仍然打不开，请访问：[evenbetter.tech](https://evenbetter.tech)
+如果你暂时还没有绑定过，或当前还没有半斤九两科技的账号，请访问：[evenbetter.tech](https://evenbetter.tech)
 
 仓库内对应的源码基线在：
 
