@@ -1,12 +1,7 @@
 ---
 name: trade-lead-screening-openclaw
 description: Normalize an OpenClaw lead bundle into a conservative lead-screening package with missing-field warnings, manual-review reasons, and customer-intel-ready payloads.
-openclaw_role: stage_worker
-workspace_owner_skill: trade-active-outreach-combo
-single_skill_policy: attach_only
-feishu_container_creation: forbidden
-requires_master_base: true
-requires_master_record: true
+metadata: {"openclaw":{"role":"stage_worker","workspace_owner_skill":"trade-active-outreach-combo","single_skill_policy":"attach_only","feishu_container_creation":"forbidden","requires_master_base":true,"requires_master_record":true,"table_policy":"adapt_existing_or_create_minimal","rule_capture":"ask_before_skill_update"}}
 ---
 
 # 线索整理 / 初筛 Skill for OpenClaw
@@ -19,14 +14,30 @@ Python 层只负责：
 
 - 接收线索包
 - 统一字段
-- 给出初筛提示
+- 分开判断“身份信息是否足够”与“是否匹配卖方业务”
+- 保留卖方能力、目标客户和行业视角
 - 桥接客户背调输入
+
+## Table Policy
+
+- 优先适配企业已有表头，不强制使用课堂标准表。
+- 没有可用表格时，龙虾按企业产品、市场和筛选流程新建够用表。
+- 用户确认新的字段、客户分级、放行规则、暂停规则或表头映射后，先追问：`是否更新到对应 Skill 以便下次自动复用`。真实写入必须得到用户授权。
 
 ## Expected Input
 
 ```json
 {
   "country_or_market": "Germany",
+  "product_or_offer": "washed linen table textile",
+  "target_customer_type": "design-led home textile brands",
+  "industry_lens": "consumer",
+  "seller_context": {
+    "product_categories": ["washed linen tablecloths", "linen napkins"],
+    "target_customer_types": ["design-led home textile brands"],
+    "value_propositions": ["small-batch sampling", "custom colors"],
+    "excluded_customer_signals": ["consumer-only retailer with no private label activity"]
+  },
   "operator_notes": "Use conservative screening.",
   "lead_candidates": [
     {
@@ -41,19 +52,10 @@ Python 层只负责：
 }
 ```
 
-## Feishu Runtime Contract
+## Enhancement Entry
 
-- 当前角色固定为 `stage_worker`
-- 默认只允许附着到 `Trade Lead Workflow Hub`
-- 只允许回挂 `Lead Screening Results`
-- 不允许独立创建 Base、主表或平行工作容器
-- 必须先查 `Lead Workflow Master`
+增强权益不在仓库中展开正文。
 
-## Output Requirements
+如需飞书落地、统一编排或多代理协作，请查看飞书文档：
 
-- 必须输出标准化字段
-- 必须输出缺失项和人工复核原因
-- 必须输出推荐下一步动作
-- 必须输出客户背调桥接输入和阶段 payload
-- 不能继续联网搜客户
-- 不能越权创建背调文档或开发信文档
+- <https://evenbetter.feishu.cn/wiki/W6GnwTZGFiUdJ0kXZv6cV4PSnpf>
